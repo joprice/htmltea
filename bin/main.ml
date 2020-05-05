@@ -10,12 +10,14 @@ let read_stdin () =
 let parsed = Soup.parse (read_stdin ())
 
 let translate_attr = function
+  | "viewbox" -> "viewBox"
   | "form" -> "Tea.Html2.Attributes.form"
   | ("class" | "for" | "type" | "method") as attr -> attr ^ "'"
   | other -> other
 
 let translate_element = function
   | "form" -> "Tea.Html2.form"
+  | "path" -> "Tea.Svg.path"
   | ("input" | "option" | "object" | "var") as element -> element ^ "'"
   | other -> other
 
@@ -50,15 +52,19 @@ let rec convert p (state, depth) =
                |> List.rev
              in
              let attrs = String.concat ";\n" attrs in
+             let name = translate_element (e |> Soup.name) in
+             let name, close_svg =
+               if name = "svg" then ("Tea.Svg.(Tea.Svg.Attributes.(svg", "))")
+               else (name, "")
+             in
              let output =
-               indent
-               ^ translate_element (e |> Soup.name)
-               ^ " [\n " ^ attrs ^ "\n" ^ indent ^ " ] " ^ children
+               indent ^ name ^ " [\n " ^ attrs ^ "\n" ^ indent ^ " ] "
+               ^ children ^ close_svg
              in
              output :: state
          | None ->
              let text = String.concat " " (Soup.trimmed_texts e) in
-             if String.length text == 0 then state
+             if String.length text = 0 then state
              else (indent ^ "text \"" ^ text ^ "\"") :: state)
        state
 

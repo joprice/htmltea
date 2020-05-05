@@ -44,7 +44,7 @@ let rec convert p (state, depth) =
          match Soup.element e with
          | Some e ->
              let children =
-               List.rev (convert (e |> Soup.coerce) ([], depth + 1))
+               List.rev (convert (Soup.coerce e) ([], depth + 1))
              in
              let children =
                if List.length children == 0 then "[]"
@@ -53,7 +53,7 @@ let rec convert p (state, depth) =
                  ^ String.concat "\n" (List.map (fun x -> x ^ ";") children)
                  ^ "\n" ^ indent ^ "]"
              in
-             let name = translate_element (e |> Soup.name) in
+             let name = translate_element (Soup.name e) in
              let open_svg, close_svg =
                if name = "svg" then ("Tea.Svg.(Tea.Svg.Attributes.(", "))")
                else ("", "")

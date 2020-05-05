@@ -23,6 +23,18 @@ let translate_element = function
 
 let spaces i = String.make i ' '
 
+let build_attrs e indent_width =
+  let attrs =
+    e
+    |> Soup.fold_attributes
+         (fun acc key value ->
+           (spaces indent_width ^ translate_attr key ^ " \"" ^ value ^ "\"")
+           :: acc)
+         []
+    |> List.rev
+  in
+  String.concat ";\n" attrs
+
 let rec convert p (state, depth) =
   p |> Soup.children
   |> Soup.fold
@@ -41,25 +53,15 @@ let rec convert p (state, depth) =
                  ^ String.concat "\n" (List.map (fun x -> x ^ ";") children)
                  ^ "\n" ^ indent ^ "]"
              in
-             let attrs =
-               e
-               |> Soup.fold_attributes
-                    (fun acc key value ->
-                      ( spaces (indent_width + 2)
-                      ^ translate_attr key ^ " \"" ^ value ^ "\"" )
-                      :: acc)
-                    []
-               |> List.rev
-             in
-             let attrs = String.concat ";\n" attrs in
              let name = translate_element (e |> Soup.name) in
-             let name, close_svg =
-               if name = "svg" then ("Tea.Svg.(Tea.Svg.Attributes.(svg", "))")
-               else (name, "")
+             let open_svg, close_svg =
+               if name = "svg" then ("Tea.Svg.(Tea.Svg.Attributes.(", "))")
+               else ("", "")
              in
+             let attrs = build_attrs e (indent_width + 2) in
              let output =
-               indent ^ name ^ " [\n " ^ attrs ^ "\n" ^ indent ^ " ] "
-               ^ children ^ close_svg
+               indent ^ open_svg ^ name ^ " [\n " ^ attrs ^ "\n" ^ indent
+               ^ " ] " ^ children ^ close_svg
              in
              output :: state
          | None ->

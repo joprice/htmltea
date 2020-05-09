@@ -1,5 +1,8 @@
+
+all: run test-svg
+
 run:
-	 @cat test.html | dune exec bin/main.exe
+	 @cat data/test.html | dune exec bin/main.exe
 
 test-svg:
-	 @cat test-2.html | dune exec bin/main.exe
+	 @cat data/svg.html | dune exec bin/main.exe

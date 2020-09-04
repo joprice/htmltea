@@ -7,8 +7,6 @@ let read_stdin () =
   in
   loop ""
 
-let parsed = Soup.parse (read_stdin ())
-
 let translate_attr = function
   | "viewbox" -> "viewBox"
   | "form" -> "Tea.Html2.Attributes.form"
@@ -70,6 +68,22 @@ let rec convert p (state, depth) =
              else (indent ^ "text \"" ^ text ^ "\"") :: state)
        state
 
+let read_url url =
+  let open Curly in
+  match run (Request.make ~url ~meth:`GET ()) with
+  | Ok x ->
+      (* Format.printf "status: %d\n" x.code; *)
+      (* Format.printf "headers: %a\n" Header.pp x.headers; *)
+      (* Format.printf "body: %s\n" x.body; *)
+      Ok x.body
+  | Error e ->
+      (* Format.printf "Failed: %a" Error.pp e; *)
+      Error e
+
+let parse html =
+  let parsed = Soup.parse html in
+  convert (Soup.coerce parsed) ([], 0)
+
 let () =
-  let result = convert (Soup.coerce parsed) ([], 0) in
-  result |> List.iter print_endline
+  let arg = Sys.argv.(1) in
+  Result.map parse (read_url arg) |> Result.iter (List.iter print_endline)

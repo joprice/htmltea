@@ -1,0 +1,13 @@
+opam-version: "2.0"
+depends: [
+  "curly"
+  "lambdasoup"
+  "ocp-browser" {build}
+  "odig" {build}
+  "ppx_deriving" {build}
+  "ocamlformat" {build}
+  "utop" {build}
+]
+build: [
+  ["dune" "build" "-p" "htmltea" "-j" jobs]
+]

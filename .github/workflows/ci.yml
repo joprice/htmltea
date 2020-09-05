@@ -19,4 +19,5 @@ jobs:
     - uses: cachix/cachix-action@v6
       with:
         name: joprice
+        signingKey: '${{ secrets.CACHIX_SIGNING_KEY }}'
     - run: nix-shell --pure --command "make run" ci.nix

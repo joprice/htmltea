@@ -1,0 +1,14 @@
+{
+  "languageserver": {
+    "ocaml-lsp": {
+        "command": "ocamllsp",
+        "filetypes": ["ocaml", "reason"]
+    },
+    "nix": {
+      "command": "rnix-lsp",
+      "filetypes": [
+        "nix"
+      ]
+    }
+  }
+}

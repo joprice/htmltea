@@ -1,0 +1,2 @@
+# declares each field or variant of a type on a new line
+type-decl=sparse

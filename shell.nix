@@ -44,8 +44,7 @@ pkgs.stdenv.mkDerivation
   buildInputs = [
     ocp
     pkgs.python3
-    (inputs default.htmltea)
-  ];
+  ] ++ (inputs default.htmltea);
   # NOTE: direnv doesn't support aliases or defining functoins, so I'm trying to 
   # duplicate that logic above.
   # See https://github.com/direnv/direnv/issues/73#issuecomment-174295790

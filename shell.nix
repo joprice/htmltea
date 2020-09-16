@@ -34,13 +34,17 @@ let
       cp ${odig-update} $out/bin/odig-update
     '';
   };
+  inputs = (drv: (drv.buildInputs or [ ]) ++
+    (drv.propagatedBuildInputs or [ ])
+  );
 in
-pkgs.stdenv.mkDerivation {
+pkgs.stdenv.mkDerivation
+{
   name = "eventual-shell";
   buildInputs = [
     ocp
     pkgs.python3
-    default.htmltea
+    (inputs default.htmltea)
   ];
   # NOTE: direnv doesn't support aliases or defining functoins, so I'm trying to 
   # duplicate that logic above.

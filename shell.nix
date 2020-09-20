@@ -40,7 +40,7 @@ let
 in
 pkgs.stdenv.mkDerivation
 {
-  name = "eventual-shell";
+  name = "htmltea-shell";
   buildInputs = [
     ocp
     pkgs.python3

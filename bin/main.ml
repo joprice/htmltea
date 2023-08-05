@@ -51,8 +51,8 @@ let translate_attr key value =
   Format.sprintf "%s %s" key value
 
 let translate_element = function
-  | "span" -> "Tag.span"
-  | ("input" | "option" | "object" | "var") as element -> element ^ "-"
+  | ("span" | "label") as tag -> Format.sprintf "Tag.%s" tag
+  | "object" as element -> element ^ "_"
   | ("svg" | "path") as tag -> Format.sprintf "std_tag %s" (quoted tag)
   | other -> other
 
@@ -69,7 +69,8 @@ let build_attrs e indent_width =
   in
   String.concat ";\n" attrs
 
-let is_void_tag tag = tag = "img"
+let void_tags = S.of_list [ "img"; "input" ]
+let is_void_tag tag = S.mem tag void_tags
 
 let rec convert p (state, depth) =
   p |> Soup.children

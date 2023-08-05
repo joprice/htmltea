@@ -15,13 +15,16 @@ module S = Set.Make (String)
 let unhandled_attr =
   S.of_list
     [
-      "viewbox";
-      "stroke-width";
-      "stroke";
+      "d";
       "fill";
+      "stroke";
+      "fill-rule";
+      "clip-rule";
       "stroke-linecap";
       "stroke-linejoin";
-      "d";
+      "stroke-width";
+      "viewbox";
+      "xmlns";
     ]
 
 let is_unhandled_attr attr = unhandled_attr |> S.mem attr
@@ -122,8 +125,10 @@ let read_url url =
       Error e
 
 let parse html =
+  (*
   print_endline
     "let element = let open Dream_html in let open Tag in let open Attr in ";
+    *)
   let parsed = Soup.parse html in
   convert (Soup.coerce parsed) ([], 0)
 

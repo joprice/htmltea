@@ -23,8 +23,9 @@
     with pkgs;
     with ocamlPackages;
     rec {
+      defaultPackage = packages.htmltea;
       packages = {
-        default = buildDunePackage
+        htmltea = buildDunePackage
           {
             version = "0.0.1";
             pname = "htmltea";

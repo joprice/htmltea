@@ -23,16 +23,32 @@
     with pkgs;
     with ocamlPackages;
     rec {
+      packages = {
+        default = buildDunePackage
+          {
+            version = "0.0.1";
+            pname = "htmltea";
+            src = ./.;
+            buildInputs = [
+              curly
+              lambdasoup
+            ];
+          };
+        installPhase = ''
+          mkdir -p $out/bin
+          mv _build/default/bin/htmltea.exe $out/bin/htmltea
+        '';
+      };
       devShells. default = mkShell
         {
           propagatedBuildInputs = [
-            curly
-            lambdasoup
           ];
           nativeBuildInputs = [
             findlib
           ];
           buildInputs = [
+            curly
+            lambdasoup
             dune_3
             ocaml
             ocaml-lsp

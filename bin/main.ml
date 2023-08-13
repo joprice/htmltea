@@ -25,6 +25,9 @@ let unhandled_attr =
       "stroke-width";
       "viewbox";
       "xmlns";
+      "cx";
+      "cy";
+      "r";
     ]
 
 let is_unhandled_attr attr = unhandled_attr |> S.mem attr
@@ -56,7 +59,8 @@ let translate_attr key value =
 let translate_element = function
   | ("span" | "label") as tag -> Format.sprintf "Tag.%s" tag
   | "object" as element -> element ^ "_"
-  | ("svg" | "path") as tag -> Format.sprintf "std_tag %s" (quoted tag)
+  | ("svg" | "path" | "circle") as tag ->
+      Format.sprintf "std_tag %s" (quoted tag)
   | other -> other
 
 let spaces i = String.make i ' '

@@ -83,7 +83,7 @@ let lower_camel_case str =
 let translate_attr key value =
   let key, maybe_value =
     match key with
-    | ("class" | "for" | "type" | "method") as attr -> ("_" ^ attr, None)
+    | ("class" | "for" | "type" | "method") as attr -> (attr ^ "_", None)
     (* | attr *)
     (*   when attr |> String.starts_with ~prefix:"aria-" || is_unhandled_attr attr *)
     (*   -> *)

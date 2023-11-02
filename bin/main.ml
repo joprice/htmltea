@@ -154,7 +154,7 @@ let rec convert p (state, depth) =
              *)
              let attrs = build_attrs e (indent_width + 2) in
              let output =
-               indent ^ name ^ " (props \n " ^ attrs ^ "\n" ^ indent ^ " ())"
+               indent ^ name ^ " (attrs \n " ^ attrs ^ "\n" ^ indent ^ " ())"
                ^ children
              in
              output :: state

@@ -23,26 +23,73 @@ let unhandled_attr =
       "stroke-linecap";
       "stroke-linejoin";
       "stroke-width";
-      "viewbox";
+      "viewBox";
       "xmlns";
       "cx";
       "cy";
       "r";
     ]
 
-let is_unhandled_attr attr = unhandled_attr |> S.mem attr
+let _is_unhandled_attr attr = unhandled_attr |> S.mem attr
 let is_numeric_attr attr = attr = "tabindex"
+
+(* let capitalize_http_header s = *)
+(*   let uppercase_s = String.uppercase_ascii s in *)
+(*   let uppercase_http_headers = *)
+(*     [ *)
+(*       "CSP"; *)
+(*       "ATT"; *)
+(*       "WAP"; *)
+(*       "IP"; *)
+(*       "HTTP"; *)
+(*       "CPU"; *)
+(*       "DNT"; *)
+(*       "SSL"; *)
+(*       "UA"; *)
+(*       "TE"; *)
+(*       "WWW"; *)
+(*       "XSS"; *)
+(*       "MD5"; *)
+(*     ] *)
+(*   in *)
+(*   match List.mem uppercase_s uppercase_http_headers with *)
+(*   | true -> uppercase_s *)
+(*   | _ -> String.capitalize_ascii s *)
+
+let split_words str =
+  (*  A pattern that matches all known word separators. *)
+  let word_separator_pattern =
+    String.concat "|"
+      [
+        "\\s+";
+        "_";
+        "-";
+        "(?<=[A-Z])(?=[A-Z][a-z])";
+        "(?<=[^A-Z_-])(?=[A-Z])";
+        "(?<=[A-Za-z0-9])(?=[^A-Za-z0-9])";
+      ]
+  in
+  Pcre.split ~pat:word_separator_pattern str
+
+let convert_case ~convert_first ~convert_rest ~sep ~str =
+  match split_words str with
+  | [] -> failwith "illegal argument str"
+  | hd :: tl -> String.concat sep (convert_first hd :: List.map convert_rest tl)
+
+let lower_camel_case str =
+  convert_case ~convert_first:String.lowercase_ascii
+    ~convert_rest:String.capitalize_ascii ~sep:"" ~str
 
 let translate_attr key value =
   let key, maybe_value =
     match key with
-    | ("class" | "for" | "type" | "method") as attr -> (attr ^ "_", None)
-    | attr
-      when attr |> String.starts_with ~prefix:"aria-" || is_unhandled_attr attr
-      ->
-        if value = "true" || value = "false" then
-          (Format.sprintf "bool_attr \"%s\"" attr, Some value)
-        else (Format.sprintf "string_attr \"%s\"" attr, None)
+    | ("class" | "for" | "type" | "method") as attr -> ("_" ^ attr, None)
+    (* | attr *)
+    (*   when attr |> String.starts_with ~prefix:"aria-" || is_unhandled_attr attr *)
+    (*   -> *)
+    (*     if value = "true" || value = "false" then *)
+    (*       (Format.sprintf "bool_attr \"%s\"" attr, Some value) *)
+    (*     else (Format.sprintf "string_attr \"%s\"" attr, None) *)
     | other -> (other, None)
   in
   let value =
@@ -51,16 +98,16 @@ let translate_attr key value =
     | None ->
         if is_numeric_attr key then
           (* adding parens to handle negative numbers and letting ocamlforamt handle cleaning it up *)
-          Format.sprintf "(%s)" value
-        else quoted value
+          Format.sprintf "(Prop.i (%s))" value
+        else "(Prop.s " ^ quoted value ^ ")"
   in
-  Format.sprintf "%s %s" key value
+  Format.sprintf "~%s:%s" key value
 
 let translate_element = function
-  | ("span" | "label") as tag -> Format.sprintf "Tag.%s" tag
+  (* | ("span" | "label") as tag -> Format.sprintf "Tag.%s" tag *)
   | "object" as element -> element ^ "_"
-  | ("svg" | "path" | "circle") as tag ->
-      Format.sprintf "std_tag %s" (quoted tag)
+  (* | ("svg" | "path" | "circle") as tag -> *)
+  (*     Format.sprintf "std_tag %s" (quoted tag) *)
   | other -> other
 
 let spaces i = String.make i ' '
@@ -70,11 +117,12 @@ let build_attrs e indent_width =
     e
     |> Soup.fold_attributes
          (fun acc key value ->
-           (spaces indent_width ^ translate_attr key value) :: acc)
+           (spaces indent_width ^ translate_attr (lower_camel_case key) value)
+           :: acc)
          []
     |> List.rev
   in
-  String.concat ";\n" attrs
+  String.concat " " attrs
 
 let void_tags = S.of_list [ "img"; "input" ]
 let is_void_tag tag = S.mem tag void_tags
@@ -92,11 +140,11 @@ let rec convert p (state, depth) =
              in
              let children =
                if List.length children == 0 then
-                 if is_void_tag (Soup.name e) then "" else "[]"
+                 if is_void_tag (Soup.name e) then "" else "[||]"
                else
-                 "[\n"
+                 "[|\n"
                  ^ String.concat "\n" (List.map (fun x -> x ^ ";") children)
-                 ^ "\n" ^ indent ^ "]"
+                 ^ "\n" ^ indent ^ "|]"
              in
              let name = translate_element (Soup.name e) in
              (*let open_svg, close_svg =
@@ -106,7 +154,7 @@ let rec convert p (state, depth) =
              *)
              let attrs = build_attrs e (indent_width + 2) in
              let output =
-               indent ^ name ^ " [\n " ^ attrs ^ "\n" ^ indent ^ " ] "
+               indent ^ name ^ " (props \n " ^ attrs ^ "\n" ^ indent ^ " ())"
                ^ children
              in
              output :: state
@@ -129,10 +177,11 @@ let read_url url =
       Error e
 
 let parse html =
-  (*
-  print_endline
-    "let element = let open Dream_html in let open Tag in let open Attr in ";
-    *)
+  print_endline {|
+open Van
+open Tags
+let output () =
+  |};
   let parsed = Soup.parse html in
   convert (Soup.coerce parsed) ([], 0)
 

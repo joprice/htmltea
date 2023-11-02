@@ -1,4 +1,4 @@
 (executable
  (public_name htmltea)
  (name main)
- (libraries htmltea lambdasoup curly))
+ (libraries htmltea lambdasoup curly pcre))

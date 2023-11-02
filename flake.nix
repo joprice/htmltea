@@ -55,6 +55,7 @@
             ocaml-lsp
             ocamlformat
             pkg-config
+            ocaml_pcre
           ];
           OCAMLRUNPARAM = "b";
         };

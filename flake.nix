@@ -33,6 +33,7 @@
             buildInputs = [
               curly
               lambdasoup
+              ocaml_pcre
             ];
           };
         installPhase = ''
@@ -42,20 +43,16 @@
       };
       devShells. default = mkShell
         {
-          propagatedBuildInputs = [
-          ];
+          inputsFrom = [ packages.htmltea ];
           nativeBuildInputs = [
             findlib
           ];
           buildInputs = [
-            curly
-            lambdasoup
             dune_3
             ocaml
             ocaml-lsp
             ocamlformat
             pkg-config
-            ocaml_pcre
           ];
           OCAMLRUNPARAM = "b";
         };

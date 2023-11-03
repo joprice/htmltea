@@ -117,10 +117,14 @@ let build_attrs e indent_width =
     e
     |> Soup.fold_attributes
          (fun acc key value ->
-           (spaces indent_width ^ translate_attr (lower_camel_case key) value)
+           ( key,
+             spaces indent_width ^ translate_attr (lower_camel_case key) value
+           )
            :: acc)
          []
     |> List.rev
+    |> List.stable_sort (fun (k1, _) (k2, _) -> String.compare k1 k2)
+    |> List.map snd
   in
   String.concat " " attrs
 

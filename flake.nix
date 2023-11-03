@@ -27,7 +27,7 @@
       packages = {
         htmltea = buildDunePackage
           {
-            version = builtins.trace (self.sourceInfo) "0.0.1";
+            version = builtins.trace (self.shortRev) "0.0.1";
             pname = "htmltea";
             src = ./.;
             buildInputs = [

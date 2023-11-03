@@ -1,4 +1,11 @@
 (executable
  (public_name htmltea)
  (name main)
- (libraries htmltea lambdasoup curly pcre))
+ (libraries htmltea lambdasoup curly pcre dune-build-info))
+
+(rule
+ (targets version.ml)
+ (deps (env_var RELEASE_VERSION))
+ (action
+   (with-stdout-to version.ml
+     (echo "let version = \"%{env:RELEASE_VERSION=n\\a}\""))))

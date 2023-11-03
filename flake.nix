@@ -26,20 +26,23 @@
       defaultPackage = packages.htmltea;
       packages = {
         htmltea = buildDunePackage
-          {
+          rec {
             version = (if (self ? shortRev) then self.shortRev else "dirty-${self.sourceInfo.lastModifiedDate}");
+            RELEASE_VERSION = version;
             pname = "htmltea";
             src = ./.;
             buildInputs = [
+              pkgs.git
               curly
               lambdasoup
               ocaml_pcre
+              dune-build-info
             ];
           };
-        installPhase = ''
-          mkdir -p $out/bin
-          mv _build/default/bin/htmltea.exe $out/bin/htmltea
-        '';
+        #installPhase = ''
+        #  mkdir -p $out/bin
+        #  mv _build/default/bin/htmltea.exe $out/bin/htmltea
+        #'';
       };
       devShells. default = mkShell
         {

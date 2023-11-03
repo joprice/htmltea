@@ -189,14 +189,24 @@ let output () =
   let parsed = Soup.parse html in
   convert (Soup.coerce parsed) ([], 0)
 
+let eval contents = parse contents |> List.iter print_endline
+
 let () =
-  let contents =
-    if Sys.argv |> Array.length = 2 then
+  print_endline (String.concat "," (Array.to_list Sys.argv));
+  if Sys.argv |> Array.length = 2 then
+    if Sys.argv.(1) = "--version" then
+      let version =
+        Version.version
+        (* let version = *)
+        (*   match Build_info.V1.version () with *)
+        (*   | Some version -> version |> Build_info.V1.Version.to_string *)
+        (*   | None -> "n/a" *)
+      in
+      print_endline version
+    else
       let arg = Sys.argv.(1) in
       read_url arg
-    else Ok (read_stdin ())
-  in
-  Result.map parse contents
-  |> Result.fold ~ok:(List.iter print_endline) ~error:(fun e ->
-         Format.printf "Failed: %a" Curly.Error.pp e;
-         exit 1)
+      |> Result.fold ~ok:eval ~error:(fun e ->
+             Format.printf "Failed: %a" Curly.Error.pp e;
+             exit 1)
+  else read_stdin () |> eval

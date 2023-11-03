@@ -192,7 +192,6 @@ let output () =
 let eval contents = parse contents |> List.iter print_endline
 
 let () =
-  print_endline (String.concat "," (Array.to_list Sys.argv));
   if Sys.argv |> Array.length = 2 then
     if Sys.argv.(1) = "--version" then
       let version =

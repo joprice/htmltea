@@ -27,8 +27,8 @@
       packages = {
         htmltea = buildDunePackage
           {
-            version = builtins.trace (if (self ? shortRev) then self.shortRev else "dirty-${self.sourceInfo.lastModifiedDate}") "0.0.1";
-            pname = builtins.trace (self.sourceInfo) "htmltea";
+            version = (if (self ? shortRev) then self.shortRev else "dirty-${self.sourceInfo.lastModifiedDate}");
+            pname = "htmltea";
             src = ./.;
             buildInputs = [
               curly
@@ -58,3 +58,4 @@
         };
     });
 }
+
